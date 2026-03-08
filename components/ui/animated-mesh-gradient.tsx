@@ -12,28 +12,28 @@ export function AnimatedMeshGradient() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas size
+    // Set canvas size to parent section
+    const parent = canvas.parentElement;
     const setCanvasSize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if (parent) {
+        canvas.width = parent.offsetWidth;
+        canvas.height = parent.offsetHeight;
+      }
     };
     setCanvasSize();
 
     let animationFrameId: number;
-    let time = 0;
 
     // Define gradient points that will animate
     const points = [
-      { x: 0.2, y: 0.3, vx: 0.0003, vy: 0.0004 },
-      { x: 0.8, y: 0.2, vx: -0.0002, vy: 0.0005 },
-      { x: 0.5, y: 0.8, vx: 0.0004, vy: -0.0003 },
-      { x: 0.3, y: 0.7, vx: -0.0003, vy: -0.0002 },
+      { x: 0.2, y: 0.3, vx: 0.0002, vy: 0.00015 },
+      { x: 0.8, y: 0.2, vx: -0.00015, vy: 0.0002 },
+      { x: 0.5, y: 0.8, vx: 0.00018, vy: -0.00012 },
+      { x: 0.3, y: 0.7, vx: -0.00012, vy: -0.00018 },
     ];
 
     const animate = () => {
-      time += 1;
-
-      // Update point positions
+      // Update point positions with smooth movement
       points.forEach((point) => {
         point.x += point.vx;
         point.y += point.vy;
@@ -47,37 +47,46 @@ export function AnimatedMeshGradient() {
         point.y = Math.max(0, Math.min(1, point.y));
       });
 
-      // Clear canvas
-      ctx.fillStyle = "rgb(18, 18, 18)"; // --background color
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Clear canvas with transparent background
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Apply blur filter for smooth gradient effect
+      ctx.filter = "blur(100px)";
 
       // Create multiple radial gradients for mesh effect
+      // Using electric blue and complementary colors
       const colors = [
-        { r: 165, g: 102, b: 255, a: 0.15 }, // Electric blue base
-        { r: 100, g: 150, b: 255, a: 0.1 },
-        { r: 80, g: 180, b: 255, a: 0.12 },
-        { r: 120, g: 100, b: 255, a: 0.08 },
+        { r: 102, g: 178, b: 255, a: 0.3 }, // Electric blue
+        { r: 70, g: 140, b: 255, a: 0.25 },  // Deeper blue
+        { r: 120, g: 180, b: 255, a: 0.25 }, // Lighter blue
+        { r: 80, g: 160, b: 255, a: 0.2 },   // Mid blue
       ];
 
       points.forEach((point, index) => {
         const color = colors[index % colors.length];
+        const radius = Math.max(canvas.width, canvas.height) * 0.5;
+        
         const gradient = ctx.createRadialGradient(
           point.x * canvas.width,
           point.y * canvas.height,
           0,
           point.x * canvas.width,
           point.y * canvas.height,
-          Math.max(canvas.width, canvas.height) * 0.4
+          radius
         );
 
-        // Create smooth color stops
+        // Create smooth color stops for better blending
         gradient.addColorStop(
           0,
           `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`
         );
         gradient.addColorStop(
-          0.5,
-          `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a * 0.5})`
+          0.4,
+          `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a * 0.6})`
+        );
+        gradient.addColorStop(
+          0.8,
+          `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a * 0.2})`
         );
         gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0)`);
 
@@ -88,11 +97,9 @@ export function AnimatedMeshGradient() {
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    // Add blur effect for smoothness
-    ctx.filter = "blur(80px)";
     animate();
 
-    // Handle window resize
+    // Handle window and parent resize
     const handleResize = () => setCanvasSize();
     window.addEventListener("resize", handleResize);
 
@@ -105,8 +112,8 @@ export function AnimatedMeshGradient() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.8 }}
+      className="absolute inset-0 w-full h-full pointer-events-none z-0"
+      style={{ mixBlendMode: "screen", opacity: 0.6 }}
     />
   );
 }
