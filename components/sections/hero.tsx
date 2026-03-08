@@ -13,6 +13,7 @@ import {
   imageReveal,
 } from "@/lib/animations";
 import { CTAButton } from "@/components/ui/cta-button";
+import { AnimatedMeshGradient } from "@/components/ui/animated-mesh-gradient";
 
 interface HeroProps {
   onOpenPrograms?: () => void;
@@ -24,8 +25,11 @@ export function Hero({ onOpenPrograms }: HeroProps) {
       id="hero"
       className="relative min-h-screen flex items-center pt-20 overflow-hidden"
     >
-      {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-primary/5 pointer-events-none" />
+      {/* Animated Mesh Gradient Background */}
+      <AnimatedMeshGradient />
+      
+      {/* Base Background Color */}
+      <div className="absolute inset-0 bg-background pointer-events-none" />
       
       {/* Subtle Grid Pattern */}
       <div 
